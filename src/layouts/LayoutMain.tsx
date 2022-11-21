@@ -18,16 +18,6 @@ function LayoutMain({children, title, subTitle, titleLink, titleWeb, href}: Prop
         <>
             <Head>
                 <title>{title}</title>
-                <meta
-                    property="og:image"
-                    content="/order-me-logo.png"
-                />
-                <meta
-                    name="description"
-                    content="Order Me Account"
-                />
-                <meta name="keywords" content="Liam"/>
-                <link rel="icon" href="/order-me-logo.png"/>
             </Head>
             <Flex
                 minHeight="100vh"
