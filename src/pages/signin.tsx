@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import LayoutMain from "@/layouts/LayoutMain";
-import {Box, Button, FormControl, FormLabel, Input, Link, Stack, useToast,} from "@chakra-ui/react";
+import {Box, Button, FormControl, FormErrorMessage, FormLabel, Input, Link, Stack, useToast,} from "@chakra-ui/react";
 import {useForm} from "react-hook-form";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import OApi from "@/services";
@@ -13,6 +13,7 @@ const Signin = () => {
     const toast = useToast()
     const {register, handleSubmit, watch, formState: {errors, isSubmitting}} = useForm();
     const [token, setToken] = useState()
+
 
     const loginMutation = useMutation(['authLogin'],
         (data: UserLogin) => OApi.login.authLogin(data));
@@ -85,11 +86,11 @@ const Signin = () => {
             titleLink="Sign up now!"
         >
             <form method="post" onSubmit={handleSubmit(onSubmit)}>
-                <FormControl>
-                    <FormLabel htmlFor="phoneNumber">Phone number</FormLabel>
+                <FormControl isInvalid={!!errors.phone}>
+                    <FormLabel htmlFor="number">Phone number</FormLabel>
                     <Input
                         type="number"
-                        id="phoneNumber"
+                        id="number"
                         placeholder="Enter your phone number"
                         {...register("phone", {
                             required: "The phone is incorrect.",
@@ -97,15 +98,11 @@ const Signin = () => {
                                 value: 10,
                                 message: "Minimum length should be 10",
                             },
-                            pattern: {
-                                value: /(84|0[3|5|7|8|9])+([0-9]{8})\b/g,
-                                message: "Please enter a valid phone number.",
-                            },
                         })}
                     />
-                    {/*<FormErrorMessage>{errors.phone?.message}</FormErrorMessage>*/}
+                    <FormErrorMessage>{errors?.phone?.message}</FormErrorMessage>
                 </FormControl>
-                <FormControl mt={4}>
+                <FormControl mt={4} isInvalid={!!errors.password}>
                     <FormLabel>Password</FormLabel>
                     <Input
                         type="password"
@@ -118,7 +115,7 @@ const Signin = () => {
                             },
                         })}
                     />
-                    {/*<FormErrorMessage>{errors?.password?.message}</FormErrorMessage>*/}
+                    <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
                 </FormControl>
 
                 <Stack isInline justifyContent="space-between" mt={4}>
