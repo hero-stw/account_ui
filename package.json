@@ -1,31 +1,31 @@
 {
-  "name": "my-app",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "generate-api": "npx swagger-typescript-api -p https://order-me-api.herokuapp.com/docs/api-docs.json -o ./src/services -n service.ts --axios"
-  },
-  "dependencies": {
-    "@chakra-ui/icons": "^2.0.12",
-    "@chakra-ui/react": "^2.4.1",
-    "@emotion/react": "^11.10.5",
-    "@emotion/styled": "^11.10.5",
-    "@tanstack/react-query": "^4.16.1",
-    "@types/node": "18.11.9",
-    "@types/react": "18.0.25",
-    "@types/react-dom": "18.0.9",
-    "axios": "^1.1.3",
-    "eslint": "8.28.0",
-    "eslint-config-next": "13.0.4",
-    "framer-motion": "^6.5.1",
-    "next": "13.0.4",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "react-hook-form": "^7.39.4",
-    "typescript": "4.9.3"
-  }
+    "name": "my-app",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "next dev -p 9999",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint",
+        "generate-api": "npx swagger-typescript-api -p https://order-me-api.herokuapp.com/docs/api-docs.json -o ./src/services -n service.ts --axios"
+    },
+    "dependencies": {
+        "@chakra-ui/icons": "^2.0.12",
+        "@chakra-ui/react": "^2.4.1",
+        "@emotion/react": "^11.10.5",
+        "@emotion/styled": "^11.10.5",
+        "@tanstack/react-query": "^4.16.1",
+        "@types/node": "18.11.9",
+        "@types/react": "18.0.25",
+        "@types/react-dom": "18.0.9",
+        "axios": "^1.1.3",
+        "eslint": "8.28.0",
+        "eslint-config-next": "13.0.4",
+        "framer-motion": "^6.5.1",
+        "next": "13.0.4",
+        "react": "18.2.0",
+        "react-dom": "18.2.0",
+        "react-hook-form": "^7.39.4",
+        "typescript": "4.9.3"
+    }
 }
