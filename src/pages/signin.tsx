@@ -27,18 +27,15 @@ const Signin = () => {
     watch,
     formState: { errors, isSubmitting },
   } = useForm();
-  const [token, setToken] = useState();
   const callBackUrl = router.query?.callback_url;
 
   const loginMutation = useMutation(["authLogin"], (data: UserLogin) =>
     OApi.login.authLogin(data)
   );
-  const headers = {
-    Authorization: `Bearer ${token}`,
-  };
+
   const { data: pro, isLoading } = useQuery(
-    ["getProfile", { headers }],
-    () => OApi.me.getProfile({ headers }),
+    ["getProfile"],
+    () => OApi.me.getProfile(),
     {
       retry: 0,
       refetchInterval: 15000,
@@ -47,15 +44,18 @@ const Signin = () => {
   // @ts-ignore
   const profile = pro?.data.data;
   const isUser = !!profile;
+  console.log("profile", pro);
 
   const onSubmit = (data: any) => {
     loginMutation.mutate(data, {
       onSuccess: async (res) => {
-        await queryClient.refetchQueries();
-
-        // @ts-ignore
-        const access_token = res.data.access_token;
-        await setToken(access_token);
+        await queryClient.invalidateQueries(["getProfile"]);
+        await router.push({
+          pathname: callBackUrl as string,
+        });
+        // // @ts-ignore
+        // const access_token = res.data.access_token;
+        // await setToken(access_token);
       },
       onError: (e: any) => {
         toast({
@@ -67,30 +67,30 @@ const Signin = () => {
     });
   };
 
-  useEffect(() => {
-    (async () => {
-      if (profile?.role === "admin") {
-        await router.push({
-          pathname: (callBackUrl || process.env.ADMIN_URL) as string,
-          query: { token: token },
-        });
-      }
-      if (profile?.role === "shipper") {
-        await router.push({
-          pathname: (callBackUrl || process.env.SHIPPER_URL) as string,
-          query: { token: token },
-        });
-      }
-      if (profile?.role === "user") {
-        await router.push({
-          pathname: (callBackUrl || process.env.USER_URL) as string,
-          query: { token: token },
-        });
-      }
+  // useEffect(() => {
+  //   (async () => {
+  //     if (profile?.role === "admin") {
+  //       await router.push({
+  //         pathname: (callBackUrl || process.env.ADMIN_URL) as string,
+  //         query: { token: token },
+  //       });
+  //     }
+  //     if (profile?.role === "shipper") {
+  //       await router.push({
+  //         pathname: (callBackUrl || process.env.SHIPPER_URL) as string,
+  //         query: { token: token },
+  //       });
+  //     }
+  //     if (profile?.role === "user") {
+  //       await router.push({
+  //         pathname: (callBackUrl || process.env.USER_URL) as string,
+  //         query: { token: token },
+  //       });
+  //     }
 
-      return;
-    })();
-  }, [isUser, token, isLoading]);
+  //     return;
+  //   })();
+  // }, [isUser, token, isLoading]);
 
   return (
     <LayoutMain

@@ -1,6 +1,7 @@
-import {Api} from "@/services/service";
+import { Api } from "@/services/service";
+import { api } from "./api";
 
 // @ts-ignore
-const OApi = new Api<unknown>();
+const OApi: Api<unknown> = api();
 
 export default OApi;

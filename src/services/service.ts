@@ -153,6 +153,120 @@ export interface LocationUpdate {
 }
 
 /**
+ * Log Data
+ * Log model
+ */
+export interface LogResponse {
+  id?: number;
+  status?: string;
+  change_by?: UserResponse;
+  created_at?: string;
+  updated_at?: string;
+}
+
+/**
+ * Order Request
+ * Order model
+ */
+export interface OrderCreate {
+  user_id?: number;
+  phone?: string;
+  note?: string;
+  location_id?: number;
+  total?: string;
+  dishes?: OrderDetailRequest[];
+}
+
+/**
+ * Order Detail Request
+ * Order model
+ */
+export interface OrderDetailRequest {
+  dish_id?: number;
+  quantity?: number;
+}
+
+/**
+ * Order Detail Response
+ * Order model
+ */
+export interface OrderDetailResponse {
+  dishes?: OrderDishItem[];
+  total?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+/**
+ * Order Dish Item
+ * Order model
+ */
+export interface OrderDishItem {
+  id?: number;
+  image?: string;
+  name?: string;
+  slug?: string;
+  quantity?: number;
+  price?: number;
+}
+
+/**
+ * Order Request
+ * Order model
+ */
+export interface OrderResponse {
+  id?: number;
+  status?: number;
+  code?: string;
+  phone?: string;
+  total?: string;
+  note?: string;
+  location?: LocationResponse;
+  user?: UserResponse;
+  logs?: LogResponse[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+/**
+ * Order Request
+ * Order model
+ */
+export interface OrderUpdate {
+  status?: number;
+}
+
+/**
+ * Setting Request
+ * Setting model
+ */
+export interface SettingRespone {
+  name: string;
+  phone?: string;
+  email?: string;
+  logo?: string;
+  address?: string;
+  created_at?: string;
+  updated_at?: string;
+  id?: number;
+}
+
+/**
+ * Setting Update
+ * Setting model
+ */
+export interface SettingUpdate {
+  name: string;
+  phone?: string;
+  email?: string;
+  logo?: string;
+  address?: string;
+  created_at?: string;
+  updated_at?: string;
+  id?: number;
+}
+
+/**
  * User Login Request
  * User Login request body data
  */
@@ -335,13 +449,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name GetCategories
      * @summary Get list of category
      * @request GET:/admin/category
-     * @secure
      */
     getCategories: (params: RequestParams = {}) =>
       this.request<CategoryResponse, any>({
         path: `/admin/category`,
         method: "GET",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -353,14 +465,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name CreateCategory
      * @summary Create new category
      * @request POST:/admin/category
-     * @secure
      */
     createCategory: (data: CategoryCreate, params: RequestParams = {}) =>
       this.request<CategoryResponse, any>({
         path: `/admin/category`,
         method: "POST",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -373,13 +483,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name GetCategoryById
      * @summary Get category information
      * @request GET:/admin/category/{id}
-     * @secure
      */
     getCategoryById: (id: number, params: RequestParams = {}) =>
       this.request<CategoryResponse, any>({
         path: `/admin/category/${id}`,
         method: "GET",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -391,14 +499,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name UpdateCategory
      * @summary Update existing category
      * @request PUT:/admin/category/{id}
-     * @secure
      */
     updateCategory: (id: number, data: CategoryUpdate, params: RequestParams = {}) =>
       this.request<CategoryResponse, any>({
         path: `/admin/category/${id}`,
         method: "PUT",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -411,13 +517,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name DeleteCategory
      * @summary Delete existing category
      * @request DELETE:/admin/category/{id}
-     * @secure
      */
     deleteCategory: (id: number, params: RequestParams = {}) =>
       this.request<any, any>({
         path: `/admin/category/${id}`,
         method: "DELETE",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -429,13 +533,30 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name GetDishes
      * @summary Get list of dish
      * @request GET:/admin/dish
-     * @secure
      */
-    getDishes: (params: RequestParams = {}) =>
+    getDishes: (
+      query?: {
+        /** category slug */
+        category?: string;
+        /** dish name */
+        search?: string;
+        /** limit size  */
+        limit?: string;
+        /** page size  */
+        page?: string;
+        /**  start price */
+        start_price?: number;
+        /**  end price */
+        end_price?: number;
+        /**  sort by query vd :-id,+id,+name,-name,-price,+price */
+        sort?: string;
+      },
+      params: RequestParams = {},
+    ) =>
       this.request<DishesResponse, any>({
         path: `/admin/dish`,
         method: "GET",
-        secure: true,
+        query: query,
         format: "json",
         ...params,
       }),
@@ -447,14 +568,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name CreateDish
      * @summary Create new dish
      * @request POST:/admin/dish
-     * @secure
      */
     createDish: (data: DishesCreate, params: RequestParams = {}) =>
       this.request<DishesResponse, any>({
         path: `/admin/dish`,
         method: "POST",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -467,13 +586,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name GetDishById
      * @summary Get dish information
      * @request GET:/admin/dish/{id}
-     * @secure
      */
     getDishById: (id: number, params: RequestParams = {}) =>
       this.request<DishesResponse, any>({
         path: `/admin/dish/${id}`,
         method: "GET",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -485,14 +602,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name UpdateDish
      * @summary Update existing dish
      * @request PUT:/admin/dish/{id}
-     * @secure
      */
     updateDish: (id: number, data: DishesUpdate, params: RequestParams = {}) =>
       this.request<DishesResponse, any>({
         path: `/admin/dish/${id}`,
         method: "PUT",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -505,13 +620,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name DeleteDish
      * @summary Delete existing dish
      * @request DELETE:/admin/dish/{id}
-     * @secure
      */
     deleteDish: (id: number, params: RequestParams = {}) =>
       this.request<any, any>({
         path: `/admin/dish/${id}`,
         method: "DELETE",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -523,13 +636,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name GetLocations
      * @summary Get list of locltion
      * @request GET:/admin/location
-     * @secure
      */
     getLocations: (params: RequestParams = {}) =>
       this.request<LocationResponse, any>({
         path: `/admin/location`,
         method: "GET",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -541,14 +652,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name CreateLocation
      * @summary Create new location
      * @request POST:/admin/location
-     * @secure
      */
     createLocation: (data: LocationCreate, params: RequestParams = {}) =>
       this.request<LocationResponse, any>({
         path: `/admin/location`,
         method: "POST",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -561,13 +670,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name GetLocationById
      * @summary Get location information
      * @request GET:/admin/location/{id}
-     * @secure
      */
     getLocationById: (id: number, params: RequestParams = {}) =>
       this.request<LocationResponse, any>({
         path: `/admin/location/${id}`,
         method: "GET",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -579,14 +686,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name UpdateLocation
      * @summary Update existing location
      * @request PUT:/admin/location/{id}
-     * @secure
      */
     updateLocation: (id: number, data: LocationUpdate, params: RequestParams = {}) =>
       this.request<LocationResponse, any>({
         path: `/admin/location/${id}`,
         method: "PUT",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -599,13 +704,80 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name DeleteLocation
      * @summary Delete existing location
      * @request DELETE:/admin/location/{id}
-     * @secure
      */
     deleteLocation: (id: number, params: RequestParams = {}) =>
       this.request<any, any>({
         path: `/admin/location/${id}`,
         method: "DELETE",
-        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns list of order
+     *
+     * @tags Order
+     * @name GetOrders
+     * @summary Get list of order
+     * @request GET:/admin/order
+     */
+    getOrders: (
+      query?: {
+        /** category slug */
+        category?: string;
+        /** dish name */
+        search?: string;
+        /** limit size  */
+        limit?: string;
+        /** page size  */
+        page?: string;
+        /**  start price */
+        start_price?: number;
+        /**  end price */
+        end_price?: number;
+        /**  sort by query vd :-id,+id,+name,-name,-price,+price */
+        sort?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<DishesResponse, any>({
+        path: `/admin/order`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns list of setting
+     *
+     * @tags Setting
+     * @name GetSettings
+     * @summary Get list of setting
+     * @request GET:/admin/setting
+     */
+    getSettings: (params: RequestParams = {}) =>
+      this.request<SettingRespone, any>({
+        path: `/admin/setting`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns updated Setting data
+     *
+     * @tags Setting
+     * @name UpdateSetting
+     * @summary Update existing Setting
+     * @request PUT:/admin/setting/{id}
+     */
+    updateSetting: (id: number, data: SettingUpdate, params: RequestParams = {}) =>
+      this.request<SettingRespone, any>({
+        path: `/admin/setting/${id}`,
+        method: "PUT",
+        body: data,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
@@ -655,7 +827,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name GetProfile
      * @summary Get user
      * @request GET:/me
-     * @secure
      */
     getProfile: (params: RequestParams = {}) =>
       this.request<
@@ -667,7 +838,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       >({
         path: `/me`,
         method: "GET",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -680,7 +850,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AuthLogout
      * @summary Logout
      * @request POST:/logout
-     * @secure
      */
     authLogout: (params: RequestParams = {}) =>
       this.request<
@@ -692,7 +861,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       >({
         path: `/logout`,
         method: "POST",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -705,13 +873,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name GetCartByUserId
      * @summary Get list of Cart
      * @request GET:/client/cart/{id}
-     * @secure
      */
     getCartByUserId: (id: number, params: RequestParams = {}) =>
       this.request<CartResponse, any>({
         path: `/client/cart/${id}`,
         method: "GET",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -723,14 +889,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name UpdateCart
      * @summary Update existing cart
      * @request PUT:/client/cart/{id}
-     * @secure
      */
     updateCart: (id: number, data: CartUpdate, params: RequestParams = {}) =>
       this.request<CartResponse, any>({
         path: `/client/cart/${id}`,
         method: "PUT",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -743,13 +907,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name DeleteCart
      * @summary Delete existing cart
      * @request DELETE:/client/cart/{id}
-     * @secure
      */
     deleteCart: (id: number, params: RequestParams = {}) =>
       this.request<any, any>({
         path: `/client/cart/${id}`,
         method: "DELETE",
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -761,14 +923,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name AddToCart
      * @summary Add products to cart
      * @request POST:/client/cart
-     * @secure
      */
     addToCart: (data: CartCreate, params: RequestParams = {}) =>
       this.request<CartResponse, any>({
         path: `/client/cart`,
         method: "POST",
         body: data,
-        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -781,7 +941,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name DeleteCartMultiple
      * @summary Delete existing cart
      * @request POST:/client/cart/deleteMultiple
-     * @secure
      */
     deleteCartMultiple: (
       query: {
@@ -794,7 +953,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/client/cart/deleteMultiple`,
         method: "POST",
         query: query,
-        secure: true,
         format: "json",
         ...params,
       }),
@@ -823,10 +981,29 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @summary Get list of dish
      * @request GET:/client/dish
      */
-    getClientDishes: (params: RequestParams = {}) =>
+    getClientDishes: (
+      query?: {
+        /** category slug */
+        category?: string;
+        /** dish name */
+        search?: string;
+        /** limit size  */
+        limit?: string;
+        /** page size  */
+        page?: string;
+        /**  start price */
+        start_price?: number;
+        /**  end price */
+        end_price?: number;
+        /**  sort by query vd :-id,+id,+name,-name,-price,+price */
+        sort?: string;
+      },
+      params: RequestParams = {},
+    ) =>
       this.request<DishesResponse, any>({
         path: `/client/dish`,
         method: "GET",
+        query: query,
         format: "json",
         ...params,
       }),
@@ -891,6 +1068,74 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       this.request<LocationResponse, any>({
         path: `/client/location/${id}`,
         method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns order data
+     *
+     * @tags Order Client
+     * @name GetOrderListClient
+     * @summary Get order list
+     * @request GET:/client/orderList/{phone}
+     */
+    getOrderListClient: (phone: string, params: RequestParams = {}) =>
+      this.request<OrderResponse, any>({
+        path: `/client/orderList/${phone}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns order data
+     *
+     * @tags Order Client
+     * @name CreateOrderClient
+     * @summary Create new order
+     * @request POST:/client/order
+     */
+    createOrderClient: (data: OrderCreate, params: RequestParams = {}) =>
+      this.request<OrderResponse, any>({
+        path: `/client/order`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns order data
+     *
+     * @tags Order Client
+     * @name GetOrderByIdClient
+     * @summary Get order detail information
+     * @request GET:/client/order/{id}
+     */
+    getOrderByIdClient: (id: number, params: RequestParams = {}) =>
+      this.request<OrderDetailResponse, any>({
+        path: `/client/order/${id}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns updated location data
+     *
+     * @tags Order Client
+     * @name UpdateOrderClient
+     * @summary Update existing Order
+     * @request PUT:/client/order/{id}
+     */
+    updateOrderClient: (id: number, data: OrderUpdate, params: RequestParams = {}) =>
+      this.request<OrderResponse, any>({
+        path: `/client/order/${id}`,
+        method: "PUT",
+        body: data,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
