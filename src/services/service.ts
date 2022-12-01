@@ -57,6 +57,26 @@ export interface CategoryUpdate {
   status?: number;
 }
 
+export interface ChatCreate {
+  sender_id?: number;
+  receiver_id?: number;
+  content?: string;
+}
+
+export interface ChatResponse {
+  sender?: UserResponse;
+  receiver?: UserResponse;
+  content?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ChatUpdate {
+  sender_id?: number;
+  receiver_id?: number;
+  content?: string;
+}
+
 export interface DishesCreate {
   name?: string;
   slug?: string;
@@ -102,6 +122,37 @@ export interface FileUploadRequest {
 }
 
 /**
+ * GuestCreate
+ * Guest request body data
+ */
+export interface GuestCreate {
+  guest_name?: string;
+  guest_slug?: string;
+  notes?: string;
+  pronoun?: string;
+  prefix?: string;
+  invitation_pronoun?: string;
+  side?: string;
+}
+
+/**
+ * GuestResponse
+ * Guest request body data
+ */
+export interface GuestResponse {
+  id?: number;
+  guest_name?: string;
+  guest_slug?: string;
+  notes?: string;
+  pronoun?: string;
+  prefix?: string;
+  invitation_pronoun?: string;
+  side?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+/**
  * MessageCreate
  * Message request body data
  */
@@ -132,6 +183,8 @@ export interface MessageResponse {
   confirm?: number;
   side?: string;
   quantity?: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface LocationCreate {
@@ -169,7 +222,6 @@ export interface LogResponse {
  * Order model
  */
 export interface OrderCreate {
-  user_id?: number;
   phone?: string;
   note?: string;
   location_id?: number;
@@ -192,6 +244,7 @@ export interface OrderDetailRequest {
  */
 export interface OrderDetailResponse {
   dishes?: OrderDishItem[];
+  logs?: LogResponse[];
   total?: string;
   created_at?: string;
   updated_at?: string;
@@ -223,7 +276,6 @@ export interface OrderResponse {
   note?: string;
   location?: LocationResponse;
   user?: UserResponse;
-  logs?: LogResponse[];
   created_at?: string;
   updated_at?: string;
 }
@@ -295,7 +347,6 @@ export interface UserResponse {
   created_at?: string;
   updated_at?: string;
   id?: number;
-  password?: string;
 }
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, HeadersDefaults, ResponseType } from "axios";
@@ -450,10 +501,19 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @summary Get list of category
      * @request GET:/admin/category
      */
-    getCategories: (params: RequestParams = {}) =>
+    getCategories: (
+      query?: {
+        /** Category name */
+        search?: string;
+        /** Category status */
+        status?: number;
+      },
+      params: RequestParams = {},
+    ) =>
       this.request<CategoryResponse, any>({
         path: `/admin/category`,
         method: "GET",
+        query: query,
         format: "json",
         ...params,
       }),
@@ -637,10 +697,23 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @summary Get list of locltion
      * @request GET:/admin/location
      */
-    getLocations: (params: RequestParams = {}) =>
+    getLocations: (
+      query?: {
+        /** address or distance location */
+        search?: string;
+        /** sort by query +id=>asc , -id =>desc */
+        sort?: string;
+        /** limit page */
+        limit?: string;
+        /** page */
+        page?: string;
+      },
+      params: RequestParams = {},
+    ) =>
       this.request<LocationResponse, any>({
         path: `/admin/location`,
         method: "GET",
+        query: query,
         format: "json",
         ...params,
       }),
@@ -723,27 +796,59 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      */
     getOrders: (
       query?: {
-        /** category slug */
-        category?: string;
-        /** dish name */
+        /** code of order */
         search?: string;
+        /** start date of order */
+        start_date?: string;
+        /** end date of order */
+        end_date?: string;
         /** limit size  */
         limit?: string;
         /** page size  */
         page?: string;
-        /**  start price */
-        start_price?: number;
-        /**  end price */
-        end_price?: number;
-        /**  sort by query vd :-id,+id,+name,-name,-price,+price */
-        sort?: string;
+        /** status of order */
+        status?: string;
       },
       params: RequestParams = {},
     ) =>
-      this.request<DishesResponse, any>({
+      this.request<OrderResponse, any>({
         path: `/admin/order`,
         method: "GET",
         query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns order data
+     *
+     * @tags Order
+     * @name GetOrderByIdAdmin
+     * @summary Get order detail information
+     * @request GET:/admin/order/{id}
+     */
+    getOrderByIdAdmin: (id: number, params: RequestParams = {}) =>
+      this.request<OrderDetailResponse, any>({
+        path: `/admin/order/${id}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns updated location data
+     *
+     * @tags Order
+     * @name UpdateOrderAdmin
+     * @summary Update existing Order
+     * @request PUT:/admin/order/{id}
+     */
+    updateOrderAdmin: (id: number, data: OrderUpdate, params: RequestParams = {}) =>
+      this.request<OrderResponse, any>({
+        path: `/admin/order/${id}`,
+        method: "PUT",
+        body: data,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
@@ -781,12 +886,41 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         format: "json",
         ...params,
       }),
+
+    /**
+     * @description Returns list of user
+     *
+     * @tags User
+     * @name GetUsers
+     * @summary Get list of user
+     * @request GET:/admin/user
+     */
+    getUsers: (
+      query?: {
+        /** Search by name, phone, email */
+        keyword?: string;
+        /** User status */
+        status?: number;
+        /** User role */
+        role?: string;
+        /**  sort by query vd :-id,+id,+name,-name,-price,+price */
+        orderBy?: string[];
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<UserResponse, any>({
+        path: `/admin/user`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
   };
   register = {
     /**
      * @description Returns user data
      *
-     * @tags User Authenticate
+     * @tags Authenticate
      * @name AuthRegister
      * @summary Create new
      * @request POST:/register
@@ -805,7 +939,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     /**
      * @description Login into system
      *
-     * @tags User Authenticate
+     * @tags Authenticate
      * @name AuthLogin
      * @summary User Login
      * @request POST:/login
@@ -819,11 +953,68 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         ...params,
       }),
   };
+  logout = {
+    /**
+     * @description logout
+     *
+     * @tags Authenticate
+     * @name AuthLogout
+     * @summary Logout
+     * @request POST:/logout
+     */
+    authLogout: (params: RequestParams = {}) =>
+      this.request<
+        any,
+        {
+          /** @example "Unauthenticated." */
+          message?: string;
+        }
+      >({
+        path: `/logout`,
+        method: "POST",
+        format: "json",
+        ...params,
+      }),
+  };
+  checkUserPhone = {
+    /**
+     * @description Check User Phone and return boolean value
+     *
+     * @tags Authenticate
+     * @name CheckUserPhone
+     * @summary Check User Phone
+     * @request POST:/check-user-phone
+     */
+    checkUserPhone: (
+      data: {
+        /** @format string */
+        phone?: any;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /**
+           * @format boolean
+           * @default "false"
+           */
+          isExits?: any;
+        },
+        any
+      >({
+        path: `/check-user-phone`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+  };
   me = {
     /**
      * @description Returns a single user.
      *
-     * @tags User Authenticate
+     * @tags Authenticate
      * @name GetProfile
      * @summary Get user
      * @request GET:/me
@@ -842,25 +1033,87 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         ...params,
       }),
   };
-  logout = {
+  chat = {
     /**
-     * @description logout
+     * @description Returns list of chat
      *
-     * @tags User Authenticate
-     * @name AuthLogout
-     * @summary Logout
-     * @request POST:/logout
+     * @tags Chat
+     * @name GetChats
+     * @summary Get list of chat
+     * @request GET:/chat
      */
-    authLogout: (params: RequestParams = {}) =>
-      this.request<
-        any,
-        {
-          /** @example "Unauthenticated." */
-          message?: string;
-        }
-      >({
-        path: `/logout`,
+    getChats: (params: RequestParams = {}) =>
+      this.request<ChatResponse, any>({
+        path: `/chat`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns chat data
+     *
+     * @tags Chat
+     * @name CreateChat
+     * @summary Create new chat
+     * @request POST:/chat
+     */
+    createChat: (data: ChatCreate, params: RequestParams = {}) =>
+      this.request<ChatResponse, any>({
+        path: `/chat`,
         method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns chat data
+     *
+     * @tags Chat
+     * @name GetChatById
+     * @summary Get chat information
+     * @request GET:/chat/{id}
+     */
+    getChatById: (id: number, params: RequestParams = {}) =>
+      this.request<ChatResponse, any>({
+        path: `/chat/${id}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns updated chat data
+     *
+     * @tags Chat
+     * @name UpdateChat
+     * @summary Update existing chat
+     * @request PUT:/chat/{id}
+     */
+    updateChat: (id: number, data: ChatUpdate, params: RequestParams = {}) =>
+      this.request<ChatResponse, any>({
+        path: `/chat/${id}`,
+        method: "PUT",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Deletes a record and returns no content
+     *
+     * @tags Chat
+     * @name DeleteChat
+     * @summary Delete existing chat
+     * @request DELETE:/chat/{id}
+     */
+    deleteChat: (id: number, params: RequestParams = {}) =>
+      this.request<any, any>({
+        path: `/chat/${id}`,
+        method: "DELETE",
         format: "json",
         ...params,
       }),
@@ -965,10 +1218,19 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @summary Get list of category
      * @request GET:/client/category
      */
-    getClientCategories: (params: RequestParams = {}) =>
+    getClientCategories: (
+      query?: {
+        /** Category name */
+        search?: string;
+        /** Category status */
+        status?: number;
+      },
+      params: RequestParams = {},
+    ) =>
       this.request<CategoryResponse, any>({
         path: `/client/category`,
         method: "GET",
+        query: query,
         format: "json",
         ...params,
       }),
@@ -1048,10 +1310,23 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @summary Get list of locltion
      * @request GET:/client/location
      */
-    getClientLocations: (params: RequestParams = {}) =>
+    getClientLocations: (
+      query?: {
+        /** address or distance location */
+        search?: string;
+        /** sort by query +id=>asc , -id =>desc */
+        sort?: string;
+        /** limit page */
+        limit?: string;
+        /** page */
+        page?: string;
+      },
+      params: RequestParams = {},
+    ) =>
       this.request<LocationResponse, any>({
         path: `/client/location`,
         method: "GET",
+        query: query,
         format: "json",
         ...params,
       }),
@@ -1141,6 +1416,63 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
   };
   heroWedding = {
+    /**
+     * @description Returns list of Guest
+     *
+     * @tags Hero Wedding Guest
+     * @name HeroGetGuest
+     * @summary Get list of Guest
+     * @request GET:/hero-wedding/guest
+     */
+    heroGetGuest: (
+      query?: {
+        /** slug of guest  */
+        keyword?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<GuestResponse, any>({
+        path: `/hero-wedding/guest`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns guest data
+     *
+     * @tags Hero Wedding Guest
+     * @name HeroAddGuest
+     * @summary Create new guest
+     * @request POST:/hero-wedding/guest
+     */
+    heroAddGuest: (data: GuestCreate, params: RequestParams = {}) =>
+      this.request<GuestResponse, any>({
+        path: `/hero-wedding/guest`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns Guest data
+     *
+     * @tags Hero Wedding Guest
+     * @name HeroGetGuestById
+     * @summary Get Guest information
+     * @request GET:/hero-wedding/guest/{id}
+     */
+    heroGetGuestById: (id: number, params: RequestParams = {}) =>
+      this.request<GuestResponse, any>({
+        path: `/hero-wedding/guest/${id}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
     /**
      * @description Returns list of Message
      *

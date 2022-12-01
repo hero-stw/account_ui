@@ -16,46 +16,39 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import OApi from "@/services";
 import { UserLogin } from "@/services/service";
 import { useRouter } from "next/router";
+import { redirectByRole } from "@/helpers/utils";
+import { useProfile } from "@/hooks/useProfile";
 
 const Signin = () => {
   const router = useRouter();
+  const callBackUrl = router?.query?.callback_url;
+
   const queryClient = useQueryClient();
   const toast = useToast();
+
+  const { data: pro } = useProfile();
+  const [isAuthenticate, setIsAuthenticate] = useState(false);
+
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm();
-  const callBackUrl = router.query?.callback_url;
 
   const loginMutation = useMutation(["authLogin"], (data: UserLogin) =>
     OApi.login.authLogin(data)
   );
 
-  const { data: pro, isLoading } = useQuery(
-    ["getProfile"],
-    () => OApi.me.getProfile(),
-    {
-      retry: 0,
-      refetchInterval: 15000,
-    }
-  );
   // @ts-ignore
-  const profile = pro?.data.data;
+  const profile = pro?.data?.data;
   const isUser = !!profile;
-  console.log("profile", pro);
 
   const onSubmit = (data: any) => {
     loginMutation.mutate(data, {
       onSuccess: async (res) => {
+        setIsAuthenticate(true);
         await queryClient.invalidateQueries(["getProfile"]);
-        await router.push({
-          pathname: callBackUrl as string,
-        });
-        // // @ts-ignore
-        // const access_token = res.data.access_token;
-        // await setToken(access_token);
+        await router.push({ pathname: callBackUrl as string });
       },
       onError: (e: any) => {
         toast({
@@ -67,30 +60,13 @@ const Signin = () => {
     });
   };
 
-  // useEffect(() => {
-  //   (async () => {
-  //     if (profile?.role === "admin") {
-  //       await router.push({
-  //         pathname: (callBackUrl || process.env.ADMIN_URL) as string,
-  //         query: { token: token },
-  //       });
-  //     }
-  //     if (profile?.role === "shipper") {
-  //       await router.push({
-  //         pathname: (callBackUrl || process.env.SHIPPER_URL) as string,
-  //         query: { token: token },
-  //       });
-  //     }
-  //     if (profile?.role === "user") {
-  //       await router.push({
-  //         pathname: (callBackUrl || process.env.USER_URL) as string,
-  //         query: { token: token },
-  //       });
-  //     }
-
-  //     return;
-  //   })();
-  // }, [isUser, token, isLoading]);
+  useEffect(() => {
+    (async () => {
+      if (isUser && isAuthenticate) {
+        await router.push(redirectByRole(profile?.role as string) as string);
+      }
+    })();
+  }, [isUser, isAuthenticate]);
 
   return (
     <LayoutMain

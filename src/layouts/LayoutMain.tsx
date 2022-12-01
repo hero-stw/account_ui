@@ -9,14 +9,15 @@ import {
 } from "@chakra-ui/react";
 import ColorModeSwitcher from "@/components/ColorModeSwitcher";
 import Head from "next/head";
+import Link from "next/link";
 
 type Props = {
   title: string;
   children: React.ReactNode;
-  subTitle: string;
-  titleLink: string;
+  subTitle?: string;
+  titleLink?: string;
   titleWeb: string;
-  href: string;
+  href?: string;
 };
 
 function LayoutMain({
@@ -25,7 +26,7 @@ function LayoutMain({
   subTitle,
   titleLink,
   titleWeb,
-  href,
+  href = "",
 }: Props) {
   const color = useColorModeValue("gray.600", "white");
   return (
@@ -67,12 +68,12 @@ function LayoutMain({
             </Text>
 
             <Flex fontSize={18} fontWeight={400} justify="center">
-              <Text>{subTitle}</Text>
-              {/*<Link passHref href={"/"}>*/}
-              {/*    <a>*/}
-              {/*        {titleLink}*/}
-              {/*    </a>*/}
-              {/*</Link>*/}
+              <Text>{subTitle} </Text>
+              <Link passHref href={href}>
+                <Text color="#DFB23F" ml="5px">
+                  {titleLink}
+                </Text>
+              </Link>
             </Flex>
           </Box>
 
@@ -80,7 +81,7 @@ function LayoutMain({
             borderWidth={1}
             px={{ lg: 4, base: 0 }}
             width="full"
-            maxWidth={{ lg: "500px", base: "355px" }}
+            maxWidth={{ lg: "450px", base: "355px" }}
             borderRadius={4}
             textAlign="center"
             boxShadow="lg"
