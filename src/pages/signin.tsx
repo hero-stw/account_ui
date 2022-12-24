@@ -33,12 +33,13 @@ const Signin = () => {
     const profile = pro?.data?.data;
     const isUser = !!profile;
 
+    console.log('isUser',isUser)
     const onSubmit = (data: any) => {
         loginMutation.mutate(data, {
             onSuccess: async (res) => {
+                await queryClient.invalidateQueries(["getProfile"]);
                 setIsAuthenticate(true);
-                router.push(decodeURIComponent(callBackUrl as string));
-                // await queryClient.invalidateQueries(["getProfile"]);
+                await router.push({pathname:callBackUrl as string});
             },
             onError: (e: any) => {
                 toast({
