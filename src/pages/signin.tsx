@@ -8,11 +8,12 @@ import {UserLogin} from "@/services/service";
 import {useRouter} from "next/router";
 import {redirectByRole} from "@/helpers/utils";
 import {useProfile} from "@/hooks/useProfile";
+import process from "process";
 
 const Signin = () => {
     const router = useRouter();
     const callBackUrl = router?.query?.callback_url;
-
+    console.log(process.env.CHIEF_URL)
     const queryClient = useQueryClient();
     const toast = useToast();
 
@@ -33,13 +34,12 @@ const Signin = () => {
     const profile = pro?.data?.data;
     const isUser = !!profile;
 
-    console.log('isUser',isUser)
     const onSubmit = (data: any) => {
         loginMutation.mutate(data, {
             onSuccess: async (res) => {
                 await queryClient.invalidateQueries(["getProfile"]);
                 setIsAuthenticate(true);
-                await router.push({pathname:callBackUrl as string});
+                await router.push({pathname: callBackUrl as string});
             },
             onError: (e: any) => {
                 toast({
